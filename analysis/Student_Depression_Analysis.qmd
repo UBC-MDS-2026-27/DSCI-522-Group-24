@@ -1,0 +1,108 @@
+---
+title: "Exploratory Data Analysis: Depression Dataset"
+Author: Isaac Wu, 
+format:
+  html:
+    toc: true
+    code-fold: false
+    theme: cosmo
+jupyter: python3
+---
+
+## 1. Data Loading & Initial Inspection
+
+In this section, we load the student depression dataset and inspect the first few rows to understand the structure of the features and target variable (`Depression`).
+
+```{python}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+sns.set_theme(style="whitegrid")
+
+df = pd.read_csv('../data/Student_Depression_Dataset.csv')
+
+print(df.head())
+```
+
+## 2. Exploratory Data Analysis (EDA)
+
+Before building any classification models, we inspect the dataset's dimensions, data types, missing values, and feature distributions. Understanding class balance and feature scales helps prevent data leakage and informs our preprocessing pipeline (such as scaling numerical features and encoding categorical variables).
+
+```{python}
+# Clean any leading/trailing whitespace in column names
+df.columns = df.columns.str.strip()
+
+print(f"Dataset Shape: {df.shape[0]} rows, {df.shape[1]} columns\n")
+print("--- Data Types & Non-Null Counts ---")
+df.info()
+
+print("\n--- Missing Values ---")
+missing = df.isnull().sum()
+print(missing[missing > 0] if missing.sum() > 0 else "No missing values detected.")
+
+print(f"\nDuplicate Rows: {df.duplicated().sum()}")
+```
+
+Next, we examine the distributions of our binary target variable, Depression, to check for class imbalance.
+
+```{python}
+import altair as alt
+
+# Allow Altair to render datasets with >5,000 rows
+alt.data_transformers.disable_max_rows()
+
+# Clean any leading/trailing whitespace in column names
+df.columns = df.columns.str.strip()
+
+print(f"Dataset Shape: {df.shape[0]} rows, {df.shape[1]} columns\n")
+print("--- Data Types & Non-Null Counts ---")
+df.info()
+
+print("\n--- Missing Values ---")
+missing = df.isnull().sum()
+print(missing[missing > 0] if missing.sum() > 0 else "No missing values detected.")
+
+print(f"\nDuplicate Rows: {df.duplicated().sum()}")
+```
+
+```{python}
+target_col = 'Depression'
+
+bars = alt.Chart(df).mark_bar().encode(
+    x=alt.X(f'{target_col}:N', title='Depression Status', axis=alt.Axis(labelAngle=0)),
+    y=alt.Y('count():Q', title='Count'),
+    color=alt.Color(f'{target_col}:N', legend=None, scale=alt.Scale(scheme='pastel1')),
+    tooltip=[alt.Tooltip(f'{target_col}:N', title='Depression'), alt.Tooltip('count():Q', title='Count')]
+).properties(
+    width=300,
+    height=250,
+    title=f'Target Variable Distribution ({target_col})'
+)
+
+text = bars.mark_text(
+    align='center',
+    baseline='bottom',
+    dy=-4
+).encode(
+    text='count():Q'
+)
+
+(bars + text)
+
+```
+
+Obviously the dataset we have is not balanced. We might need to class_weight="balanced" to combat this problem.
+Therefore,  let's take a look into the distribution of numeric data and categorical features.
+
+```{python}
+
+# Summary statistics for numerical features
+df.describe()
+
+```
+
+```{python}
+df.describe(include=['object', 'category'])
+```
