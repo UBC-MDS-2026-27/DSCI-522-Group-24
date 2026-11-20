@@ -14,7 +14,8 @@ jupyter: python3
 Student mental health is a critical factor influencing academic performance, retention, and overall well-being in higher education.
 Understanding which demographic, academic, social, and lifestyle variables correlate with student depression enables universities to identify at-risk individuals early and allocate targeted support resources effectively.
 
-In this analysis, we examine the **Student Depression Dataset** (`4,464` student records across `13` features), which captures demographic attributes (`Gender`, `Age`, `Home_division`), socioeconomic and living conditions (`Family_background`, `Living_style`, `Cost_without_study`), academic standing (`Current_semester`, `CGPA`), and personal well-being indicators (`Relationship_status`, `Marital_status`, `friend_circle`, `Health_condition`). Our objective is to perform exploratory data analysis (EDA) to uncover key risk patterns and develop a supervised machine learning classification pipeline to predict whether a student experiences depression (`Depression`: `Yes` vs. `No`).
+In this analysis, we examine the **Student Depression Dataset** (`4,464` student records across `13` features), which captures demographic attributes (`Gender`, `Age`, `Home_division`), socioeconomic and living conditions (`Family_background`, `Living_style`, `Cost_without_study`), academic standing (`Current_semester`, `CGPA`), and personal well-being indicators (`Relationship_status`, `Marital_status`, `friend_circle`, `Health_condition`). 
+Our objective is to perform exploratory data analysis (EDA) to uncover key risk patterns and develop a supervised machine learning classification pipeline to predict whether a student experiences depression (`Depression`: `Yes` vs. `No`).
 
 Data source: [Kaggle](https://www.kaggle.com/datasets/mkhoirulmustaqim/student-depression-detection-dataset)
 
