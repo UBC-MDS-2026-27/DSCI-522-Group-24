@@ -363,3 +363,36 @@ for ax, (name, predictions) in zip(axes, test_predictions.items()):
 plt.show()
 ```
 
+## Result Discussion
+
+Overall, our model achieved an accuracy of 97.1% (0.971), substantially outperforming the majority-class baseline of 73.1% (0.731). The model's precision is 0.961, indicating that when it predicts a student has depression, it is correct the vast majority of the time, resulting in very few false alarms (false positives). However, our recall is slightly lower at 0.929. Comparing these two metrics shows that the model produces more false negatives than false positives, though the gap is relatively small.
+
+Overall, the F1-score of 0.945 reflects a strong balance between precision and recall. However, for future fine-tuning, we should prioritize improving recall over precision to minimize false negatives—ensuring we do not miss students who actually have depression and need support.
+
+```{python}
+#| echo: false
+fitted_model = models[selected_name]
+preprocessor = fitted_model.named_steps["columntransformer"]
+classifier = fitted_model.named_steps["logisticregression"]
+
+coefficients = pd.Series(
+    classifier.coef_[0],
+    index=preprocessor.get_feature_names_out(),
+    name="Coefficient",
+).sort_values()
+
+display(pd.concat([coefficients.head(5), coefficients.tail(5)]).round(3))
+```
+
+The table shows the five most negative and five most positive coefficients from the logistic regression model. Health condition had the largest coefficient in both directions, ranging from −6.18 to +8.92 across the categories shown. Holding the other predictors constant, this means the model assigned very different odds of a Yes depression label depending on the student’s health-condition category. This pattern is consistent with our exploratory analysis, where no students in the “Good” category had a Yes label, while all students in the “Critical” category did.
+
+# 7. Refrences
+
+Refrenches Include both the data and refrences that are mentioned both in the data and on resources used and also AI models used for help in debugging code and branch/merge issues
+- OpenAI. (2026). *ChatGPT* [Large language model]. https://chatgpt.com/
+
+- Auerbach, R. P., et al. (2018). WHO World Mental Health Surveys International College Student Project: Prevalence and distribution of mental disorders. *Journal of Abnormal Psychology, 127*(7), 623–638. [https://doi.org/10.1037/abn0000362](https://doi.org/10.1037/abn0000362)
+
+- mkhoirulmustaqim. (n.d.). *Student Depression Detection Dataset* [Data set]. Kaggle. [Dataset page](https://www.kaggle.com/datasets/mkhoirulmustaqim/student-depression-detection-dataset)
+
+- Pedregosa, F., et al. (2011). Scikit-learn: Machine learning in Python. *Journal of Machine Learning Research, 12*, 2825–2830. [Article](https://jmlr.org/papers/v12/pedregosa11a.html)
