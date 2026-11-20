@@ -1,5 +1,5 @@
 ---
-title: "Exploratory Data Analysis: Depression Dataset"
+title: "Predicting Student Depression Using Demographic, Academic, and Well-Being Factors"
 Author: Isaac Wu, 
 format:
   html:
@@ -21,7 +21,7 @@ Data source: [Kaggle](https://www.kaggle.com/datasets/mkhoirulmustaqim/student-d
 
 
 
-# 2. Methedology
+# 2. Methodology
 
 ## 2.1 Overview of Analytical Workflow
 1. **Data Acquisition (`data/raw/`):** Download the raw CSV dataset from its source URL and save an unmodified copy to `../data/raw/Student_Depression_Dataset.csv`.
@@ -44,11 +44,26 @@ In this section, we load the student depression dataset and inspect the first fe
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
+import kagglehub
+import os
 
-sns.set_theme(style="whitegrid")
 
-df = pd.read_csv('../data/raw/Student_Depression_Dataset.csv')
+#Data Loading
+os.makedirs("../data/raw", exist_ok=True)
+raw_path = "../data/raw/Student_Depression_Dataset.csv"
+
+if not os.path.exists(raw_path):
+  # Downloads the latest version of the dataset to local cache
+  download_dir = kagglehub.dataset_download(
+      "mkhoirulmustaqim/student-depression-detection-dataset"
+  )
+
+  # Find the CSV file in the downloaded folder and copy it to data/raw/
+  csv_files = glob.glob(os.path.join(download_dir, "*.csv"))
+  shutil.copy(csv_files[0], raw_path)
+
+
+df = pd.read_csv(raw_path)
 
 print(df.head())
 
@@ -70,7 +85,7 @@ print(missing[missing > 0] if missing.sum() > 0 else "No missing values detected
 print(f"\nDuplicate Rows: {df.duplicated().sum()}")
 ```
 
-*So the data looks completed without any missing values and duplicated rows.*
+*So the data looks complete without any missing values and duplicated rows.*
 Next, we examine the distributions of our binary target variable, Depression, to check for class imbalance. Before that we shall transform the target column from string to boolean (0 and 1) and split the dataset into training and testing set.
 
 ```{python}
@@ -82,7 +97,7 @@ Now save it as processed data in the processed folder.
 df.to_csv('../data/processed/student_depression_clean.csv', index=False)
 ```
 
-Check if we revise the target correctly. Therefore, the dataset will be splited into training and testing set using sklearn package.
+Check if we revise the target correctly. Therefore, the dataset will split into training and testing set using sklearn package.
 
 ```{python}
 from sklearn.model_selection import train_test_split
@@ -106,7 +121,7 @@ y_test = test_df['Depression']
 
 # 4. Exploratory Data Analysis (EDA)
 
-Before building any classification models, we inspect the dataset's dimensions, data types, missing values, and feature distributions. Understanding class balance and feature scales helps prevent data leakage and informs our preprocessing pipeline (such as scaling numerical features and encoding categorical variables).
+Following the train-test split, we conduct exploratory data analysis exclusively on the training set (train_df, $n = 3,571$) to prevent data leakage. Specifically, we examine the class balance of the target variable (Depression) alongside the summary statistics and distributions of numerical and categorical features to identify key risk patterns and inform our preprocessing pipeline.
 
 ```{python}
 import altair as alt
@@ -156,7 +171,7 @@ train_df.describe(include=['object', 'category'])
 
 
 --- 
-## Data Distribution of Numeric variables grouped by Target variable (Depression)
+## 4.1 Data Distribution of Numeric variables grouped by Target variable (Depression)
 
 ```{python}
 
@@ -194,10 +209,10 @@ if num_cols:
 alt.vconcat(*rows).resolve_scale(color='shared')
 
 ```
-According to the density plots by various numeric variables, the distribution of `GCPA` seems to be one of the important factors affecting the level of depression for a student.
+According to the density plots by various numeric variables, the distribution of `CGPA` seems to be one of the important factors affecting the level of depression for a student.
 
 
-## Data Distribution of Categorical variables grouped by Target variable (Depression)
+## 4.2 Data Distribution of Categorical variables grouped by Target variable (Depression)
 
 
 
@@ -222,4 +237,4 @@ rows = [alt.hconcat(*charts[i:i+2], spacing=50) for i in range(0, len(charts), 2
 alt.vconcat(*rows, spacing=30).resolve_scale(color='shared')
 ```
 
-Given that the black dash line is the portion of depression, based on the percentage bar charts above, we can see that the distribution of `health condition`, (Good in health does not have any depression cases while all students with critical health condition are depressed cases.), `marital status`, `relationship status`, might be prominent factors.
+Given that the black dash line is the portion of depression, based on the percentage bar charts above, we can see that the distribution of `health condition` (Good in health does not include any depression cases while all students with critical health condition are depressed.), `marital status`, `relationship status`, might be prominent factors.

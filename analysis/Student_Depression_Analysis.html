@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Exploratory Data Analysis: Depression Dataset</title>
+<title>Predicting Student Depression Using Demographic, Academic, and Well-Being Factors</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -120,7 +120,7 @@ window.Quarto = {
    
   <ul>
   <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">1. Introduction</a></li>
-  <li><a href="#methedology" id="toc-methedology" class="nav-link" data-scroll-target="#methedology">2. Methedology</a>
+  <li><a href="#methodology" id="toc-methodology" class="nav-link" data-scroll-target="#methodology">2. Methodology</a>
   <ul class="collapse">
   <li><a href="#overview-of-analytical-workflow" id="toc-overview-of-analytical-workflow" class="nav-link" data-scroll-target="#overview-of-analytical-workflow">2.1 Overview of Analytical Workflow</a></li>
   <li><a href="#model-selection-and-evaluation-metrics" id="toc-model-selection-and-evaluation-metrics" class="nav-link" data-scroll-target="#model-selection-and-evaluation-metrics">2.2 Model Selection and Evaluation Metrics</a></li>
@@ -128,8 +128,8 @@ window.Quarto = {
   <li><a href="#data-loading-initial-inspection-and-preprocessing" id="toc-data-loading-initial-inspection-and-preprocessing" class="nav-link" data-scroll-target="#data-loading-initial-inspection-and-preprocessing">3. Data Loading, Initial Inspection and Preprocessing</a></li>
   <li><a href="#exploratory-data-analysis-eda" id="toc-exploratory-data-analysis-eda" class="nav-link" data-scroll-target="#exploratory-data-analysis-eda">4. Exploratory Data Analysis (EDA)</a>
   <ul class="collapse">
-  <li><a href="#data-distribution-of-numeric-variables-grouped-by-target-variable-depression" id="toc-data-distribution-of-numeric-variables-grouped-by-target-variable-depression" class="nav-link" data-scroll-target="#data-distribution-of-numeric-variables-grouped-by-target-variable-depression">Data Distribution of Numeric variables grouped by Target variable (Depression)</a></li>
-  <li><a href="#data-distribution-of-categorical-variables-grouped-by-target-variable-depression" id="toc-data-distribution-of-categorical-variables-grouped-by-target-variable-depression" class="nav-link" data-scroll-target="#data-distribution-of-categorical-variables-grouped-by-target-variable-depression">Data Distribution of Categorical variables grouped by Target variable (Depression)</a></li>
+  <li><a href="#data-distribution-of-numeric-variables-grouped-by-target-variable-depression" id="toc-data-distribution-of-numeric-variables-grouped-by-target-variable-depression" class="nav-link" data-scroll-target="#data-distribution-of-numeric-variables-grouped-by-target-variable-depression">4.1 Data Distribution of Numeric variables grouped by Target variable (Depression)</a></li>
+  <li><a href="#data-distribution-of-categorical-variables-grouped-by-target-variable-depression" id="toc-data-distribution-of-categorical-variables-grouped-by-target-variable-depression" class="nav-link" data-scroll-target="#data-distribution-of-categorical-variables-grouped-by-target-variable-depression">4.2 Data Distribution of Categorical variables grouped by Target variable (Depression)</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -138,7 +138,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Exploratory Data Analysis: Depression Dataset</h1>
+<h1 class="title">Predicting Student Depression Using Demographic, Academic, and Well-Being Factors</h1>
 </div>
 
 
@@ -161,8 +161,8 @@ window.Quarto = {
 <p>In this analysis, we examine the <strong>Student Depression Dataset</strong> (<code>4,464</code> student records across <code>13</code> features), which captures demographic attributes (<code>Gender</code>, <code>Age</code>, <code>Home_division</code>), socioeconomic and living conditions (<code>Family_background</code>, <code>Living_style</code>, <code>Cost_without_study</code>), academic standing (<code>Current_semester</code>, <code>CGPA</code>), and personal well-being indicators (<code>Relationship_status</code>, <code>Marital_status</code>, <code>friend_circle</code>, <code>Health_condition</code>). Our objective is to perform exploratory data analysis (EDA) to uncover key risk patterns and develop a supervised machine learning classification pipeline to predict whether a student experiences depression (<code>Depression</code>: <code>Yes</code> vs.&nbsp;<code>No</code>).</p>
 <p>Data source: <a href="https://www.kaggle.com/datasets/mkhoirulmustaqim/student-depression-detection-dataset">Kaggle</a></p>
 </section>
-<section id="methedology" class="level1">
-<h1>2. Methedology</h1>
+<section id="methodology" class="level1">
+<h1>2. Methodology</h1>
 <section id="overview-of-analytical-workflow" class="level2">
 <h2 class="anchored" data-anchor-id="overview-of-analytical-workflow">2.1 Overview of Analytical Workflow</h2>
 <ol type="1">
@@ -184,17 +184,32 @@ window.Quarto = {
 <section id="data-loading-initial-inspection-and-preprocessing" class="level1">
 <h1>3. Data Loading, Initial Inspection and Preprocessing</h1>
 <p>In this section, we load the student depression dataset and inspect the first few rows to understand the structure of the features and target variable (<code>Depression</code>).</p>
-<div id="b99f7108" class="cell" data-execution_count="1">
+<div id="107bdde0" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> kagglehub</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'../data/raw/Student_Depression_Dataset.csv'</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.head())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">#Data Loading</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>os.makedirs(<span class="st">"../data/raw"</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>raw_path <span class="op">=</span> <span class="st">"../data/raw/Student_Depression_Dataset.csv"</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> os.path.exists(raw_path):</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Downloads the latest version of the dataset to local cache</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  download_dir <span class="op">=</span> kagglehub.dataset_download(</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>      <span class="st">"mkhoirulmustaqim/student-depression-detection-dataset"</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Find the CSV file in the downloaded folder and copy it to data/raw/</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  csv_files <span class="op">=</span> glob.glob(os.path.join(download_dir, <span class="st">"*.csv"</span>))</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  shutil.copy(csv_files[<span class="dv">0</span>], raw_path)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(raw_path)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.head())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   Gender  Age Family_background Relationship_status Marital_status  \
 0  Female   22      Middle class              Single      Unmarried   
@@ -218,7 +233,7 @@ window.Quarto = {
 4               16693         Dhaka        Yes  </code></pre>
 </div>
 </div>
-<div id="daf4fbc7" class="cell" data-execution_count="2">
+<div id="1742f9dd" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Clean any leading/trailing whitespace in column names</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df.columns <span class="op">=</span> df.columns.<span class="bu">str</span>.strip()</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -262,11 +277,11 @@ No missing values detected.
 Duplicate Rows: 0</code></pre>
 </div>
 </div>
-<p><em>So the data looks completed without any missing values and duplicated rows.</em> Next, we examine the distributions of our binary target variable, Depression, to check for class imbalance. Before that we shall transform the target column from string to boolean (0 and 1) and split the dataset into training and testing set.</p>
-<div id="b8553496" class="cell" data-execution_count="3">
+<p><em>So the data looks complete without any missing values and duplicated rows.</em> Next, we examine the distributions of our binary target variable, Depression, to check for class imbalance. Before that we shall transform the target column from string to boolean (0 and 1) and split the dataset into training and testing set.</p>
+<div id="e0b83921" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Depression'</span>] <span class="op">=</span> df[<span class="st">'Depression'</span>].<span class="bu">str</span>.strip().<span class="bu">map</span>({<span class="st">'Yes'</span>: <span class="dv">1</span>, <span class="st">'No'</span>: <span class="dv">0</span>})</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>df.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="63">
+<div class="cell-output cell-output-display" data-execution_count="73">
 <div>
 
 
@@ -377,11 +392,11 @@ Duplicate Rows: 0</code></pre>
 </div>
 </div>
 <p>Now save it as processed data in the processed folder.</p>
-<div id="abedf9e2" class="cell" data-execution_count="4">
+<div id="c8da984b" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>df.to_csv(<span class="st">'../data/processed/student_depression_clean.csv'</span>, index<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>Check if we revise the target correctly. Therefore, the dataset will be splited into training and testing set using sklearn package.</p>
-<div id="fef5c3e8" class="cell" data-execution_count="5">
+<p>Check if we revise the target correctly. Therefore, the dataset will split into training and testing set using sklearn package.</p>
+<div id="3fc03070" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Split DataFrame into 80% train and 20% test (before any EDA or preprocessing)</span></span>
@@ -402,8 +417,8 @@ Duplicate Rows: 0</code></pre>
 </section>
 <section id="exploratory-data-analysis-eda" class="level1">
 <h1>4. Exploratory Data Analysis (EDA)</h1>
-<p>Before building any classification models, we inspect the dataset’s dimensions, data types, missing values, and feature distributions. Understanding class balance and feature scales helps prevent data leakage and informs our preprocessing pipeline (such as scaling numerical features and encoding categorical variables).</p>
-<div id="5cf2f711" class="cell" data-execution_count="6">
+<p>Following the train-test split, we conduct exploratory data analysis exclusively on the training set (train_df, <span class="math inline">\(n = 3,571\)</span>) to prevent data leakage. Specifically, we examine the class balance of the target variable (Depression) alongside the summary statistics and distributions of numerical and categorical features to identify key risk patterns and inform our preprocessing pipeline.</p>
+<div id="c79bf60e" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> altair <span class="im">as</span> alt</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Allow Altair to render datasets with &gt;5,000 rows</span></span>
@@ -431,26 +446,26 @@ Duplicate Rows: 0</code></pre>
 <span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>(bars <span class="op">+</span> text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="66">
+<div class="cell-output cell-output-display" data-execution_count="76">
 
 <style>
-  #altair-viz-2829e920840c425fb95ba47ea604a56e.vega-embed {
+  #altair-viz-d8b1027a79be4350bacef1829310683b.vega-embed {
     width: 100%;
     display: flex;
   }
 
-  #altair-viz-2829e920840c425fb95ba47ea604a56e.vega-embed details,
-  #altair-viz-2829e920840c425fb95ba47ea604a56e.vega-embed details summary {
+  #altair-viz-d8b1027a79be4350bacef1829310683b.vega-embed details,
+  #altair-viz-d8b1027a79be4350bacef1829310683b.vega-embed details summary {
     position: relative;
   }
 </style>
-<div id="altair-viz-2829e920840c425fb95ba47ea604a56e"></div>
+<div id="altair-viz-d8b1027a79be4350bacef1829310683b"></div>
 <script type="text/javascript">
   var VEGA_DEBUG = (typeof VEGA_DEBUG == "undefined") ? {} : VEGA_DEBUG;
   (function(spec, embedOpt){
     let outputDiv = document.currentScript.previousElementSibling;
-    if (outputDiv.id !== "altair-viz-2829e920840c425fb95ba47ea604a56e") {
-      outputDiv = document.getElementById("altair-viz-2829e920840c425fb95ba47ea604a56e");
+    if (outputDiv.id !== "altair-viz-d8b1027a79be4350bacef1829310683b") {
+      outputDiv = document.getElementById("altair-viz-d8b1027a79be4350bacef1829310683b");
     }
 
     const paths = {
@@ -503,10 +518,10 @@ Duplicate Rows: 0</code></pre>
 </div>
 </div>
 <p>Obviously the dataset we have is not balanced as the portion of 1 (Depression) is almost one-third of 0(Not depression). We might need to class_weight=“balanced” to combat this problem. Therefore, let’s take a look into the distribution of numeric data and categorical features.</p>
-<div id="6423b81a" class="cell" data-execution_count="7">
+<div id="0a3529e8" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary statistics for numerical features</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>train_df.describe()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="67">
+<div class="cell-output cell-output-display" data-execution_count="77">
 <div>
 
 
@@ -592,14 +607,14 @@ Duplicate Rows: 0</code></pre>
 </div>
 </div>
 </div>
-<div id="65cfb984" class="cell" data-execution_count="8">
+<div id="d9f05cb3" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>train_df.describe(include<span class="op">=</span>[<span class="st">'object'</span>, <span class="st">'category'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\waiwa\AppData\Local\Temp\ipykernel_32724\259828249.py:1: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
+<pre><code>C:\Users\waiwa\AppData\Local\Temp\ipykernel_2708\259828249.py:1: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
 See https://pandas.pydata.org/docs/dev/user_guide/migration.html#string-migration-select-dtypes for details on how to write code that works with pandas 2 and 3.
   train_df.describe(include=['object', 'category'])</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="68">
+<div class="cell-output cell-output-display" data-execution_count="78">
 <div>
 
 
@@ -670,8 +685,8 @@ See https://pandas.pydata.org/docs/dev/user_guide/migration.html#string-migratio
 </div>
 <hr>
 <section id="data-distribution-of-numeric-variables-grouped-by-target-variable-depression" class="level2">
-<h2 class="anchored" data-anchor-id="data-distribution-of-numeric-variables-grouped-by-target-variable-depression">Data Distribution of Numeric variables grouped by Target variable (Depression)</h2>
-<div id="48d129ba" class="cell" data-execution_count="9">
+<h2 class="anchored" data-anchor-id="data-distribution-of-numeric-variables-grouped-by-target-variable-depression">4.1 Data Distribution of Numeric variables grouped by Target variable (Depression)</h2>
+<div id="73d19990" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>num_cols <span class="op">=</span> [c <span class="cf">for</span> c <span class="kw">in</span> train_df.select_dtypes(include<span class="op">=</span>[np.number]).columns <span class="cf">if</span> c <span class="op">!=</span> target_col]</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(num_cols)</span>
@@ -707,26 +722,26 @@ See https://pandas.pydata.org/docs/dev/user_guide/migration.html#string-migratio
 <div class="cell-output cell-output-stdout">
 <pre><code>['Age', 'Current_semester', 'CGPA', 'Cost_without_study']</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="69">
+<div class="cell-output cell-output-display" data-execution_count="79">
 
 <style>
-  #altair-viz-898745e7bcea4fc6858ffeb4b38d8a1a.vega-embed {
+  #altair-viz-5e7be322ab324a6aaf80bc56ada7f829.vega-embed {
     width: 100%;
     display: flex;
   }
 
-  #altair-viz-898745e7bcea4fc6858ffeb4b38d8a1a.vega-embed details,
-  #altair-viz-898745e7bcea4fc6858ffeb4b38d8a1a.vega-embed details summary {
+  #altair-viz-5e7be322ab324a6aaf80bc56ada7f829.vega-embed details,
+  #altair-viz-5e7be322ab324a6aaf80bc56ada7f829.vega-embed details summary {
     position: relative;
   }
 </style>
-<div id="altair-viz-898745e7bcea4fc6858ffeb4b38d8a1a"></div>
+<div id="altair-viz-5e7be322ab324a6aaf80bc56ada7f829"></div>
 <script type="text/javascript">
   var VEGA_DEBUG = (typeof VEGA_DEBUG == "undefined") ? {} : VEGA_DEBUG;
   (function(spec, embedOpt){
     let outputDiv = document.currentScript.previousElementSibling;
-    if (outputDiv.id !== "altair-viz-898745e7bcea4fc6858ffeb4b38d8a1a") {
-      outputDiv = document.getElementById("altair-viz-898745e7bcea4fc6858ffeb4b38d8a1a");
+    if (outputDiv.id !== "altair-viz-5e7be322ab324a6aaf80bc56ada7f829") {
+      outputDiv = document.getElementById("altair-viz-5e7be322ab324a6aaf80bc56ada7f829");
     }
 
     const paths = {
@@ -778,11 +793,11 @@ See https://pandas.pydata.org/docs/dev/user_guide/migration.html#string-migratio
 </script>
 </div>
 </div>
-<p>According to the density plots by various numeric variables, the distribution of <code>GCPA</code> seems to be one of the important factors affecting the level of depression for a student.</p>
+<p>According to the density plots by various numeric variables, the distribution of <code>CGPA</code> seems to be one of the important factors affecting the level of depression for a student.</p>
 </section>
 <section id="data-distribution-of-categorical-variables-grouped-by-target-variable-depression" class="level2">
-<h2 class="anchored" data-anchor-id="data-distribution-of-categorical-variables-grouped-by-target-variable-depression">Data Distribution of Categorical variables grouped by Target variable (Depression)</h2>
-<div id="0bdc7bf9" class="cell" data-execution_count="10">
+<h2 class="anchored" data-anchor-id="data-distribution-of-categorical-variables-grouped-by-target-variable-depression">4.2 Data Distribution of Categorical variables grouped by Target variable (Depression)</h2>
+<div id="71eb4938" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>cat_cols <span class="op">=</span> [c <span class="cf">for</span> c <span class="kw">in</span> train_df.select_dtypes(include<span class="op">=</span>[<span class="st">'object'</span>, <span class="st">'category'</span>]).columns <span class="cf">if</span> c <span class="op">!=</span> target_col]</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>overall_rate <span class="op">=</span> (train_df[target_col] <span class="op">==</span> <span class="dv">1</span>).mean()</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -802,30 +817,30 @@ See https://pandas.pydata.org/docs/dev/user_guide/migration.html#string-migratio
 <span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> [alt.hconcat(<span class="op">*</span>charts[i:i<span class="op">+</span><span class="dv">2</span>], spacing<span class="op">=</span><span class="dv">50</span>) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(charts), <span class="dv">2</span>)]</span>
 <span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>alt.vconcat(<span class="op">*</span>rows, spacing<span class="op">=</span><span class="dv">30</span>).resolve_scale(color<span class="op">=</span><span class="st">'shared'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\waiwa\AppData\Local\Temp\ipykernel_32724\685104526.py:1: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
+<pre><code>C:\Users\waiwa\AppData\Local\Temp\ipykernel_2708\685104526.py:1: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
 See https://pandas.pydata.org/docs/dev/user_guide/migration.html#string-migration-select-dtypes for details on how to write code that works with pandas 2 and 3.
   cat_cols = [c for c in train_df.select_dtypes(include=['object', 'category']).columns if c != target_col]</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="70">
+<div class="cell-output cell-output-display" data-execution_count="80">
 
 <style>
-  #altair-viz-b83cb83c864f4e43b8d64fde8e93335c.vega-embed {
+  #altair-viz-b729a042c2564cc8a173ba91574075ec.vega-embed {
     width: 100%;
     display: flex;
   }
 
-  #altair-viz-b83cb83c864f4e43b8d64fde8e93335c.vega-embed details,
-  #altair-viz-b83cb83c864f4e43b8d64fde8e93335c.vega-embed details summary {
+  #altair-viz-b729a042c2564cc8a173ba91574075ec.vega-embed details,
+  #altair-viz-b729a042c2564cc8a173ba91574075ec.vega-embed details summary {
     position: relative;
   }
 </style>
-<div id="altair-viz-b83cb83c864f4e43b8d64fde8e93335c"></div>
+<div id="altair-viz-b729a042c2564cc8a173ba91574075ec"></div>
 <script type="text/javascript">
   var VEGA_DEBUG = (typeof VEGA_DEBUG == "undefined") ? {} : VEGA_DEBUG;
   (function(spec, embedOpt){
     let outputDiv = document.currentScript.previousElementSibling;
-    if (outputDiv.id !== "altair-viz-b83cb83c864f4e43b8d64fde8e93335c") {
-      outputDiv = document.getElementById("altair-viz-b83cb83c864f4e43b8d64fde8e93335c");
+    if (outputDiv.id !== "altair-viz-b729a042c2564cc8a173ba91574075ec") {
+      outputDiv = document.getElementById("altair-viz-b729a042c2564cc8a173ba91574075ec");
     }
 
     const paths = {
@@ -877,7 +892,7 @@ See https://pandas.pydata.org/docs/dev/user_guide/migration.html#string-migratio
 </script>
 </div>
 </div>
-<p>Given that the black dash line is the portion of depression, based on the percentage bar charts above, we can see that the distribution of <code>health condition</code>, (Good in health does not have any depression cases while all students with critical health condition are depressed cases.), <code>marital status</code>, <code>relationship status</code>, might be prominent factors.</p>
+<p>Given that the black dash line is the portion of depression, based on the percentage bar charts above, we can see that the distribution of <code>health condition</code> (Good in health does not include any depression cases while all students with critical health condition are depressed.), <code>marital status</code>, <code>relationship status</code>, might be prominent factors.</p>
 </section>
 </section>
 
