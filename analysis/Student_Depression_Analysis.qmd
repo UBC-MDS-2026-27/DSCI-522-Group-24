@@ -1,6 +1,6 @@
 ---
 title: "Predicting Student Depression Using Demographic, Academic, and Well-Being Factors"
-Author: Isaac Wu, Quinn Scheider
+Author: Isaac Wu, Quinn Scheider, Ankit Chhikara, Shrey Mudgal
 format:
   html:
     toc: true
@@ -389,6 +389,7 @@ The table shows the five most negative and five most positive coefficients from 
 # 7. Refrences
 
 Refrenches Include both the data and refrences that are mentioned both in the data and on resources used and also AI models used for help in debugging code and branch/merge issues
+
 - OpenAI. (2026). *ChatGPT* [Large language model]. https://chatgpt.com/
 
 - Auerbach, R. P., et al. (2018). WHO World Mental Health Surveys International College Student Project: Prevalence and distribution of mental disorders. *Journal of Abnormal Psychology, 127*(7), 623–638. [https://doi.org/10.1037/abn0000362](https://doi.org/10.1037/abn0000362)
