@@ -20,7 +20,23 @@ Our objective is to perform exploratory data analysis (EDA) to uncover key risk 
 Data source: [Kaggle](https://www.kaggle.com/datasets/mkhoirulmustaqim/student-depression-detection-dataset)
 
 
-# 2. Data Loading & Initial Inspection
+
+# 2. Methedology
+
+## 2.1 Overview of Analytical Workflow
+1. **Data Acquisition (`data/raw/`):** Download the raw CSV dataset from its source URL and save an unmodified copy to `../data/raw/Student_Depression_Dataset.csv`.
+2. **Data Wrangling & Cleaning (`data/processed/`):** Standardize column names, verify data types, check for missing values or duplicate rows, encode the binary target variable (`Depression`: `Yes` $\rightarrow 1$, `No` $\rightarrow 0$), and export the cleaned dataset to `../data/processed/student_depression_clean.csv`.
+3. **Train-Test Split (The Golden Rule):** Partition the dataset into an **80% training set** ($n = 3,571$) and a **20% held-out test set** ($n = 893$) prior to conducting any exploratory data analysis, summary statistics, or feature transformations. The test set remains strictly untouched until final model evaluation.
+4. **Exploratory Data Analysis (Training Set Only):** Compute summary statistics and generate Altair visualizations on `train_df` to inspect class balance, numerical feature skewness, and depression rates across categorical subgroups.
+5. **Model Training, Cross-Validation, and Evaluation:** Build a `scikit-learn` `ColumnTransformer` preprocessing pipeline inside `Pipeline` objects to avoid validation leakage, compare four candidate classifiers via 5-fold stratified cross-validation, and evaluate the top-performing model on the held-out test set.
+
+## 2.2 Model Selection and Evaluation Metrics
+
+* **Dummy Classifier (`most_frequent`):** Serves as a naive baseline predicting the majority class (`No`) for every student.
+* **Logistic Regression (Standard & Class-Balanced):** Models the log-odds of depression as a linear combination of standardized numerical features and encoded categorical indicators, offering direct interpretability via odds ratios.
+
+
+# 3. Data Loading, Initial Inspection and Preprocessing
 
 In this section, we load the student depression dataset and inspect the first few rows to understand the structure of the features and target variable (`Depression`).
 
@@ -32,14 +48,12 @@ import seaborn as sns
 
 sns.set_theme(style="whitegrid")
 
-df = pd.read_csv('../data/Student_Depression_Dataset.csv')
+df = pd.read_csv('../data/raw/Student_Depression_Dataset.csv')
 
 print(df.head())
+
 ```
 
-# 3. Exploratory Data Analysis (EDA)
-
-Before building any classification models, we inspect the dataset's dimensions, data types, missing values, and feature distributions. Understanding class balance and feature scales helps prevent data leakage and informs our preprocessing pipeline (such as scaling numerical features and encoding categorical variables).
 
 ```{python}
 # Clean any leading/trailing whitespace in column names
@@ -56,7 +70,43 @@ print(missing[missing > 0] if missing.sum() > 0 else "No missing values detected
 print(f"\nDuplicate Rows: {df.duplicated().sum()}")
 ```
 
-Next, we examine the distributions of our binary target variable, Depression, to check for class imbalance.
+*So the data looks completed without any missing values and duplicated rows.*
+Next, we examine the distributions of our binary target variable, Depression, to check for class imbalance. Before that we shall transform the target column from string to boolean (0 and 1) and split the dataset into training and testing set.
+
+```{python}
+df['Depression'] = df['Depression'].str.strip().map({'Yes': 1, 'No': 0})
+df.head()
+```
+Now save it as processed data in the processed folder.
+```{python}
+df.to_csv('../data/processed/student_depression_clean.csv', index=False)
+```
+
+Check if we revise the target correctly. Therefore, the dataset will be splited into training and testing set using sklearn package.
+
+```{python}
+from sklearn.model_selection import train_test_split
+
+# 1. Split DataFrame into 80% train and 20% test (before any EDA or preprocessing)
+train_df, test_df = train_test_split(
+    df,
+    test_size=0.20,
+    random_state=42,
+    stratify=df['Depression']
+)
+
+# 2. Separate features (X) and target (y) for modeling
+X_train = train_df.drop(columns=['Depression'])
+y_train = train_df['Depression']
+
+X_test = test_df.drop(columns=['Depression'])
+y_test = test_df['Depression']
+```
+
+
+# 4. Exploratory Data Analysis (EDA)
+
+Before building any classification models, we inspect the dataset's dimensions, data types, missing values, and feature distributions. Understanding class balance and feature scales helps prevent data leakage and informs our preprocessing pipeline (such as scaling numerical features and encoding categorical variables).
 
 ```{python}
 import altair as alt
@@ -64,24 +114,9 @@ import altair as alt
 # Allow Altair to render datasets with >5,000 rows
 alt.data_transformers.disable_max_rows()
 
-# Clean any leading/trailing whitespace in column names
-df.columns = df.columns.str.strip()
-
-print(f"Dataset Shape: {df.shape[0]} rows, {df.shape[1]} columns\n")
-print("--- Data Types & Non-Null Counts ---")
-df.info()
-
-print("\n--- Missing Values ---")
-missing = df.isnull().sum()
-print(missing[missing > 0] if missing.sum() > 0 else "No missing values detected.")
-
-print(f"\nDuplicate Rows: {df.duplicated().sum()}")
-```
-
-```{python}
 target_col = 'Depression'
 
-bars = alt.Chart(df).mark_bar().encode(
+bars = alt.Chart(train_df).mark_bar().encode(
     x=alt.X(f'{target_col}:N', title='Depression Status', axis=alt.Axis(labelAngle=0)),
     y=alt.Y('count():Q', title='Count'),
     color=alt.Color(f'{target_col}:N', legend=None, scale=alt.Scale(scheme='pastel1')),
@@ -104,18 +139,19 @@ text = bars.mark_text(
 
 ```
 
-Obviously the dataset we have is not balanced. We might need to class_weight="balanced" to combat this problem.
+
+Obviously the dataset we have is not balanced as the portion of 1 (Depression) is almost one-third of 0(Not depression). We might need to class_weight="balanced" to combat this problem.
 Therefore,  let's take a look into the distribution of numeric data and categorical features.
 
 ```{python}
 
 # Summary statistics for numerical features
-df.describe()
+train_df.describe()
 
 ```
 
 ```{python}
-df.describe(include=['object', 'category'])
+train_df.describe(include=['object', 'category'])
 ```
 
 
@@ -124,7 +160,7 @@ df.describe(include=['object', 'category'])
 
 ```{python}
 
-num_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+num_cols = [c for c in train_df.select_dtypes(include=[np.number]).columns if c != target_col]
 
 print(num_cols)
 
@@ -132,7 +168,7 @@ print(num_cols)
 if num_cols:
     rows = []
     for col in num_cols:
-        dens = alt.Chart(df).transform_density(
+        dens = alt.Chart(train_df).transform_density(
             col,
             as_=[col, 'density'],
             groupby=[target_col]
@@ -147,7 +183,7 @@ if num_cols:
             ]
         ).properties(width=280, height=180, title=f'Normalized Density of {col}')
 
-        box = alt.Chart(df).mark_boxplot(size=40).encode(
+        box = alt.Chart(train_df).mark_boxplot(size=40).encode(
             x=alt.X(f'{target_col}:N', title='Depression', axis=alt.Axis(labelAngle=0)),
             y=alt.Y(f'{col}:Q', scale=alt.Scale(zero=False), title=col),
             color=alt.Color(f'{target_col}:N', scale=alt.Scale(scheme='set2'))
@@ -158,24 +194,25 @@ if num_cols:
 alt.vconcat(*rows).resolve_scale(color='shared')
 
 ```
+According to the density plots by various numeric variables, the distribution of `GCPA` seems to be one of the important factors affecting the level of depression for a student.
+
 
 ## Data Distribution of Categorical variables grouped by Target variable (Depression)
 
 
+
 ```{python}
-
-
-cat_cols = [c for c in df.select_dtypes(include=['object', 'category']).columns if c != 'Depression']
-overall_rate = (df['Depression'] == 'Yes').mean()
+cat_cols = [c for c in train_df.select_dtypes(include=['object', 'category']).columns if c != target_col]
+overall_rate = (train_df[target_col] == 1).mean()
 
 charts = []
 for col in cat_cols:
-    bars = alt.Chart(df).mark_bar(height=22).encode(
+    bars = alt.Chart(train_df).mark_bar(height=22).encode(
         y=alt.Y(f'{col}:N', title=None, sort='-x'),
         x=alt.X('count():Q', stack='normalize', axis=alt.Axis(format='%', title='Percentage (%)')),
-        color=alt.Color('Depression:N', scale=alt.Scale(domain=['Yes', 'No'], range=['#fc8d62', '#66c2a5'])),
-        order=alt.Order('Depression:N', sort='descending'),
-        tooltip=[col, 'Depression', 'count()']
+        color=alt.Color(f'{target_col}:N', scale=alt.Scale(domain=[1, 0], range=['#fc8d62', '#66c2a5'])),
+        order=alt.Order(f'{target_col}:N', sort='descending'),
+        tooltip=[col, target_col, 'count()']
     )
     rule = alt.Chart(pd.DataFrame({'r': [overall_rate]})).mark_rule(strokeDash=[4, 4], size=1.5).encode(x='r:Q')
     
@@ -184,3 +221,5 @@ for col in cat_cols:
 rows = [alt.hconcat(*charts[i:i+2], spacing=50) for i in range(0, len(charts), 2)]
 alt.vconcat(*rows, spacing=30).resolve_scale(color='shared')
 ```
+
+Given that the black dash line is the portion of depression, based on the percentage bar charts above, we can see that the distribution of `health condition`, (Good in health does not have any depression cases while all students with critical health condition are depressed cases.), `marital status`, `relationship status`, might be prominent factors.
