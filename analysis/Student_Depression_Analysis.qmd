@@ -1,6 +1,6 @@
 ---
 title: "Predicting Student Depression Using Demographic, Academic, and Well-Being Factors"
-Author: Isaac Wu, 
+Author: Isaac Wu, Quinn Scheider
 format:
   html:
     toc: true
@@ -46,6 +46,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import kagglehub
 import os
+import glob
+import shutil
 
 
 #Data Loading
@@ -238,3 +240,126 @@ alt.vconcat(*rows, spacing=30).resolve_scale(color='shared')
 ```
 
 Given that the black dash line is the portion of depression, based on the percentage bar charts above, we can see that the distribution of `health condition` (Good in health does not include any depression cases while all students with critical health condition are depressed.), `marital status`, `relationship status`, might be prominent factors.
+
+# 5. Model Training
+
+We compared standard and logisstic regression against a majority/most frequent class baseline using five-fold stratified cross-validation on the training data. 
+
+```{python}
+from IPython.display import display
+from sklearn.compose import ColumnTransformer
+from sklearn.dummy import DummyClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import StratifiedKFold, cross_validate
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+
+preprocessor = ColumnTransformer([
+    ('numeric', StandardScaler(), num_cols),
+    ('categorical', OneHotEncoder(handle_unknown='ignore'), cat_cols),
+])
+
+baseline_name = 'Majority-class baseline'
+logistic_models = {
+    'Logistic regression': make_pipeline(
+        preprocessor, LogisticRegression(max_iter=1000)
+    ),
+}
+models = {
+    baseline_name: DummyClassifier(strategy='most_frequent'),
+    **logistic_models,
+}
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+cv_rows = []
+
+for name, model in models.items():
+    scores = cross_validate(
+        model,
+        X_train,
+        y_train,
+        cv=cv,
+        scoring="f1",
+        error_score="raise",
+    )["test_score"]
+
+    cv_rows.append({
+        "Model": name,
+        "Mean validation F1": scores.mean(),
+        "SD across folds": scores.std(ddof=1),
+    })
+
+cv_results = pd.DataFrame(cv_rows).set_index("Model")
+selected_name = cv_results.loc[
+    list(logistic_models), "Mean validation F1"
+].idxmax()
+```
+
+# 6. Results
+
+Table 1 compares the candidate models during cross-validation. Table 2
+reports held-out test performance for the selected logistic regression
+model and the majority-class baseline. Figure 1 shows the types of
+classification errors made by each model.
+
+```{python}
+#| label: tbl-cv-results
+#| tbl-cap: "F1 scores for the depression class across five stratified validation folds."
+
+display(cv_results.round(3))
+```
+
+```{python}
+#| label: tbl-test-results
+#| tbl-cap: "Held-out test performance. Precision, recall, and F1 use depression as the positive class."
+
+from sklearn.metrics import (
+    ConfusionMatrixDisplay,
+    accuracy_score,
+    f1_score,
+    precision_score,
+    recall_score,
+)
+
+test_predictions = {}
+test_rows = []
+
+for name in [baseline_name, selected_name]:
+    model = models[name].fit(X_train, y_train)
+    predictions = model.predict(X_test)
+    test_predictions[name] = predictions
+
+    test_rows.append({
+        "Model": name,
+        "Accuracy": accuracy_score(y_test, predictions),
+        "Precision": precision_score(y_test, predictions, zero_division=0),
+        "Recall": recall_score(y_test, predictions, zero_division=0),
+        "F1": f1_score(y_test, predictions, zero_division=0),
+    })
+
+test_results = pd.DataFrame(test_rows).set_index("Model")
+display(test_results.round(3))
+```
+
+```{python}
+#| label: fig-confusion-matrices
+#| fig-cap: "Held-out test confusion matrices. Each cell shows the number of students for the corresponding actual and predicted labels."
+
+fig, axes = plt.subplots(1, 2, figsize=(10, 4), layout="constrained")
+
+for ax, (name, predictions) in zip(axes, test_predictions.items()):
+    ConfusionMatrixDisplay.from_predictions(
+        y_test,
+        predictions,
+        labels=[0, 1],
+        display_labels=["No depression", "Depression"],
+        cmap="Blues",
+        colorbar=False,
+        ax=ax,
+    )
+    ax.set_title(name)
+    ax.set_xlabel("Predicted label")
+    ax.set_ylabel("Actual label")
+
+plt.show()
+```
+
