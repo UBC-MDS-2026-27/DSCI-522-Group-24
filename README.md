@@ -52,7 +52,7 @@ The report is written to `analysis/Student_Depression_Analysis.html`. The raw da
 
 ## AI use
 
-We used [ChatGPT](https://chatgpt.com/) GPT-6 to resolve Git-related merge conflicts, explain error messages and other code-related issues, and assist with writing and debugging code for our analysis. We used [DeepSeek](https://www.deepseek.com/en/) 4.1 Flash to draft and revise the repository documentation, specifically [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`LICENSE.md`](LICENSE.md); DeepSeek was not used in the data analysis. All AI-generated changes were reviewed, tested, and edited by the authors, who take full responsibility for the content of this repository.
+We used [ChatGPT](https://chatgpt.com/) GPT-6 to resolve Git-related merge conflicts, explain error messages and other code-related issues, and assist with writing and debugging code for our analysis. We used [DeepSeek](https://www.deepseek.com/en/) 4.1 Flash to draft and revise the repository documentation, specifically [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`LICENSE.md`](LICENSE.md); DeepSeek was not used in the data analysis. In addition, we used Gemini for checking grammars and documentations. All AI-generated changes were reviewed, tested, and edited by the authors, who take full responsibility for the content of this repository.
 
 ## License
 
